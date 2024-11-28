@@ -1,0 +1,4 @@
+package com.aluracursos.infoBooks.dto;
+
+public class SearchREsultTDO {
+}
