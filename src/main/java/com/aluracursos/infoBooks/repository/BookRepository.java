@@ -19,5 +19,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b WHERE upper(b.title) LIKE upper(concat('%', :title, '%'))")
     List<Book> findSimilarTitles(@Param("title") String title);
 
+    // Búsqueda de títulos que contengan el término en cualquier parte del título
     List<Book> findByTitleContainingIgnoreCase(String query);
 }

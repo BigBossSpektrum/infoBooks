@@ -2,6 +2,8 @@ package com.aluracursos.infoBooks;
 
 import com.aluracursos.infoBooks.model.Book;
 import com.aluracursos.infoBooks.service.BookService;
+import com.aluracursos.infoBooks.dto.ExternalBookDTO;
+import com.aluracursos.infoBooks.dto.SearchResultDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -44,13 +46,30 @@ public class ConsoleMenu {
         System.out.print("Introduce el título del libro que deseas buscar: ");
         String title = scanner.nextLine();
 
-        List<Book> books = bookService.findByTitle(title);
-        if (books.isEmpty()) {
-            System.out.println("No se encontraron libros con ese título.");
-            suggestSimilarTitles(title);
+        // Usamos el método de searchBooks para buscar tanto en la base de datos local como en la API
+        SearchResultDTO searchResult = bookService.searchBooks(title);
+
+        // Mostrar los resultados locales
+        List<Book> localBooks = searchResult.getLocalBooks();
+        if (!localBooks.isEmpty()) {
+            System.out.println("Libros encontrados en la base de datos local:");
+            localBooks.forEach(System.out::println);
         } else {
-            System.out.println("Libros encontrados:");
-            books.forEach(System.out::println);
+            System.out.println("No se encontraron libros en la base de datos local.");
+        }
+
+        // Mostrar los resultados externos (de la API)
+        List<ExternalBookDTO> externalBooks = searchResult.getExternalBooks();
+        if (!externalBooks.isEmpty()) {
+            System.out.println("Libros encontrados en la API de Gutendex:");
+            externalBooks.forEach(book -> System.out.println(book.getTitle() + " - " + String.join(", ", book.getAuthors())));
+        } else {
+            System.out.println("No se encontraron libros en la API de Gutendex.");
+        }
+
+        // Si no se encuentra ningún libro, sugerir títulos similares
+        if (localBooks.isEmpty() && externalBooks.isEmpty()) {
+            suggestSimilarTitles(title);
         }
     }
 
@@ -58,12 +77,25 @@ public class ConsoleMenu {
         System.out.print("Introduce el autor del libro que deseas buscar: ");
         String author = scanner.nextLine();
 
-        List<Book> books = bookService.findByAuthor(author);
-        if (books.isEmpty()) {
-            System.out.println("No se encontraron libros de ese autor.");
+        // Usamos el método de searchBooks para buscar tanto en la base de datos local como en la API
+        SearchResultDTO searchResult = bookService.searchBooks(author);
+
+        // Mostrar los resultados locales
+        List<Book> localBooks = searchResult.getLocalBooks();
+        if (!localBooks.isEmpty()) {
+            System.out.println("Libros encontrados en la base de datos local:");
+            localBooks.forEach(System.out::println);
         } else {
-            System.out.println("Libros encontrados:");
-            books.forEach(System.out::println);
+            System.out.println("No se encontraron libros en la base de datos local.");
+        }
+
+        // Mostrar los resultados externos (de la API)
+        List<ExternalBookDTO> externalBooks = searchResult.getExternalBooks();
+        if (!externalBooks.isEmpty()) {
+            System.out.println("Libros encontrados en la API de Gutendex:");
+            externalBooks.forEach(book -> System.out.println(book.getTitle() + " - " + String.join(", ", book.getAuthors())));
+        } else {
+            System.out.println("No se encontraron libros en la API de Gutendex.");
         }
     }
 

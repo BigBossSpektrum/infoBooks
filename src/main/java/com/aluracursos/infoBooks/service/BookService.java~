@@ -7,6 +7,7 @@ import com.aluracursos.infoBooks.repository.BookRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookService {
@@ -24,17 +25,15 @@ public class BookService {
         // Buscamos libros por título
         List<Book> localBooksByTitle = bookRepository.findByTitleContainingIgnoreCase(query);
 
-        // Buscamos libros por autor si no se encontraron por título
-        List<Book> localBooksByAuthor = localBooksByTitle.isEmpty() ?
-                bookRepository.findByAuthorIgnoreCase(query) :
-                List.of();
+        // Buscamos libros por autor
+        List<Book> localBooksByAuthor = bookRepository.findByAuthorIgnoreCase(query);
 
         // Si no encontramos resultados exactos, buscamos títulos similares
         if (localBooksByTitle.isEmpty()) {
             localBooksByTitle = bookRepository.findSimilarTitles(query);
         }
 
-        // Libros externos (API)
+        // Libros externos
         List<ExternalBookDTO> externalBooks = gutendexClient.getBooksByTitle(query);
 
         // Retornar resultados combinados
@@ -73,6 +72,10 @@ public class BookService {
 
     // Búsqueda de títulos similares en datos locales
     public List<Book> findSimilarTitles(String title) {
-        return bookRepository.findSimilarTitles(title); // Usar el método adecuado en el repositorio
+        return bookRepository.findByTitleContainingIgnoreCase(title);
+    }
+
+    public Map<String, Object> getBooks(String query) {
+        return Map.of();
     }
 }

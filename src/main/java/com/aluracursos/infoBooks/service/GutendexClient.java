@@ -18,18 +18,32 @@ public class GutendexClient {
     }
 
     public List<ExternalBookDTO> getBooksByTitle(String title) {
-        String url = "https://gutendex.com/books?search=" + title;
-        String jsonResponse = restTemplate.getForObject(url, String.class);
+        // Reemplazar los espacios por "&"
+        String formattedTitle = title.replace(" ", "&");
 
-        // Parsear JSON usando org.json
-        JSONObject jsonObject = new JSONObject(jsonResponse);
-        JSONArray results = jsonObject.getJSONArray("results");
-
+        String url = "https://gutendex.com/books?search=" + formattedTitle;
         List<ExternalBookDTO> externalBooks = new ArrayList<>();
-        for (int i = 0; i < results.length(); i++) {
-            JSONObject bookJson = results.getJSONObject(i);
-            externalBooks.add(mapToExternalBookDTO(bookJson));
+
+        try {
+            String jsonResponse = restTemplate.getForObject(url, String.class);
+            if (jsonResponse != null && !jsonResponse.isEmpty()) {
+                // Parsear JSON usando org.json
+                JSONObject jsonObject = new JSONObject(jsonResponse);
+                JSONArray results = jsonObject.optJSONArray("results");
+
+                // Verificar si el JSON contiene resultados
+                if (results != null) {
+                    for (int i = 0; i < results.length(); i++) {
+                        JSONObject bookJson = results.getJSONObject(i);
+                        externalBooks.add(mapToExternalBookDTO(bookJson));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Manejo de excepciones: si la API no responde o hay algún otro error
+            System.out.println("Error al obtener los libros de la API: " + e.getMessage());
         }
+
         return externalBooks;
     }
 
@@ -37,18 +51,24 @@ public class GutendexClient {
         ExternalBookDTO dto = new ExternalBookDTO();
 
         // Convertir id a String
-        Object id = bookJson.get("id");
-        dto.setId(id.toString());
+        Object id = bookJson.opt("id");
+        if (id != null) {
+            dto.setId(id.toString());
+        }
 
         // Obtener el título
-        dto.setTitle(bookJson.getString("title"));
+        dto.setTitle(bookJson.optString("title", "Título no disponible"));
 
         // Obtener los autores
-        JSONArray authorsArray = bookJson.getJSONArray("authors");
+        JSONArray authorsArray = bookJson.optJSONArray("authors");
         List<String> authors = new ArrayList<>();
-        for (int i = 0; i < authorsArray.length(); i++) {
-            JSONObject authorJson = authorsArray.getJSONObject(i);
-            authors.add(authorJson.getString("name"));
+        if (authorsArray != null) {
+            for (int i = 0; i < authorsArray.length(); i++) {
+                JSONObject authorJson = authorsArray.optJSONObject(i);
+                if (authorJson != null) {
+                    authors.add(authorJson.optString("name", "Autor no disponible"));
+                }
+            }
         }
         dto.setAuthors(authors);
 
