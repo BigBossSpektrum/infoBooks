@@ -33,8 +33,8 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public Map<String, Object> searchBooks(@RequestParam String query) {
-        return bookService.getBooks(query);
+    public SearchResultDTO searchBooks(@RequestParam String query) {
+        return bookService.searchBooks(query);
     }
 
     @PostMapping("/saveExternal")

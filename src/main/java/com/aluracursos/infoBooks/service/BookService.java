@@ -52,6 +52,21 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    // Búsqueda exacta por título en datos locales
+    public List<Book> findByTitle(String title) {
+        return bookRepository.findByTitleIgnoreCase(title);
+    }
+
+    // Búsqueda por autor en datos locales
+    public List<Book> findByAuthor(String author) {
+        return bookRepository.findByAuthorIgnoreCase(author);
+    }
+
+    // Búsqueda de títulos similares en datos locales
+    public List<Book> findSimilarTitles(String title) {
+        return bookRepository.findSimilarTitles(title);
+    }
+
     public Map<String, Object> getBooks(String query) {
         return Map.of();
     }

@@ -35,15 +35,10 @@ public class GutendexClient {
 
     private ExternalBookDTO mapToExternalBookDTO(JSONObject bookJson) {
         ExternalBookDTO dto = new ExternalBookDTO();
-
-        // Convertir id a String
-        Object id = bookJson.get("id");
-        dto.setId(id.toString());
-
-        // Obtener el título
+        dto.setId(bookJson.getString("id"));
         dto.setTitle(bookJson.getString("title"));
 
-        // Obtener los autores
+        // Obtener lista de autores
         JSONArray authorsArray = bookJson.getJSONArray("authors");
         List<String> authors = new ArrayList<>();
         for (int i = 0; i < authorsArray.length(); i++) {
